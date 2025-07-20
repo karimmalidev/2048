@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <title>2048</title>
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            width: min(100vw, 50vh);
+            height: min(100vw, 50vh);
+            display: block;
+            image-rendering: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <script type='module' src="js/main.mjs"></script>
+    <canvas id="gameCanvas" width="720" height="720"></canvas>
+</body>
+
+</html>

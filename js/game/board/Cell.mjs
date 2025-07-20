@@ -1,0 +1,65 @@
+import Position from '../../engine/tiles/Position.mjs';
+import LinearMovableTile from '../../engine/tiles/LinearMovableTile.mjs';
+import Styles from '../Styles.mjs';
+import Constants from '../Constants.mjs';
+import Drawing from '../../helpers/Drawing.mjs';
+
+export default class Cell extends LinearMovableTile {
+    constructor(row, column, size, value) {
+        super(Position.fromRowColumn(row, column, size), size);
+
+        this.row = row;
+        this.column = column;
+        this.value = value;
+    }
+
+    equals(cell) {
+        return this.value === cell.value;
+    }
+
+    setToDouble() {
+        this.value *= 2;
+    }
+
+    changeRowAndColumn(row, column) {
+        const euclideanDistance = Math.hypot(row - this.row, column - this.column);
+        const durationInSeconds = euclideanDistance * Constants.CELL_MOVE_DURATION_IN_SECONDS;
+        const target = Position.fromRowColumn(row, column, this.size);
+        this.setMovement(target, durationInSeconds);
+        this.row = row;
+        this.column = column;
+    }
+
+    draw(context) {
+        const { width, height } = this.size;
+        const { x, y } = this.position;
+        const { BG, FG } = Styles.CellsColors[this.value];
+
+        const PAD = width * 0.05;
+
+
+        context.shadowColor = "rgba(0, 0, 0, 0.1)";
+        context.shadowBlur = PAD * 0.5;
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = PAD * 0.5;
+
+        context.fillStyle = BG;
+        Drawing.fillRoundedRect(context, x + PAD, y + PAD, width - 2 * PAD, height - 2 * PAD, PAD * 2);
+
+
+        const text = this.value.toString();
+
+        const scale = text.length <= 2 ? 0.4 : 0.3;
+        const fontSize = scale * Math.min(width, height);
+        context.font = `bold ${fontSize}px sans-serif`;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillStyle = FG;
+
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
+        context.fillText(text, centerX, centerY);
+
+        context.shadowColor = 'transparent';
+    }
+}
