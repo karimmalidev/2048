@@ -12,7 +12,7 @@ export default class Game {
         const context = canvas.getContext('2d');
         this.renderer = new Renderer(context, this.board);
 
-        this.moveInputListener = new MoveInputListener(this.board.moveInputCallback);
+        this.moveInputListener = new MoveInputListener(canvas, this.board.moveInputCallback);
     }
 
     start() {

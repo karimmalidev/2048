@@ -5,7 +5,8 @@ const SWIPE_DISTANCE_THRESHOLD = 30;
 
 export default class MoveInputListener {
 
-    constructor(moveInputCallback) {
+    constructor(canvas, moveInputCallback) {
+        this.canvas = canvas;
         this._callback = moveInputCallback;
 
         this.start = new Position();
@@ -18,8 +19,8 @@ export default class MoveInputListener {
         window.addEventListener('keydown', this._onKeyDown);
         window.addEventListener('mousedown', this._onStartEvent);
         window.addEventListener('mouseup', this._onEndEvent);
-        window.addEventListener('touchstart', this._onStartEvent, { passive: false });
-        window.addEventListener('touchend', this._onEndEvent, { passive: false });
+        this.canvas.addEventListener('touchstart', this._onStartEvent, { passive: false });
+        this.canvas.addEventListener('touchend', this._onEndEvent, { passive: false });
     }
 
     _onKeyDown = (e) => {
