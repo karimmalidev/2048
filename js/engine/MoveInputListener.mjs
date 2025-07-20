@@ -18,8 +18,8 @@ export default class MoveInputListener {
         window.addEventListener('keydown', this._onKeyDown);
         window.addEventListener('mousedown', this._onStartEvent);
         window.addEventListener('mouseup', this._onEndEvent);
-        window.addEventListener('touchstart', this._onStartEvent);
-        window.addEventListener('touchend', this._onEndEvent);
+        window.addEventListener('touchstart', this._onStartEvent, { passive: false });
+        window.addEventListener('touchend', this._onEndEvent, { passive: false });
     }
 
     _onKeyDown = (e) => {
