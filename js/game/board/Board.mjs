@@ -1,5 +1,4 @@
-import Position from "../../engine/tiles/Position.mjs";
-import Size from "../../engine/tiles/Size.mjs";
+import Vector from "../../helpers/Vector.mjs";
 import Tile from "../../engine/tiles/Tile.mjs";
 import Styles from '../Styles.mjs';
 import BoardMatrix from './BoardMatrix.mjs';
@@ -7,15 +6,15 @@ import Drawing from "../../helpers/Drawing.mjs";
 
 export default class Board extends Tile {
     constructor(cellsPerAxis, width, height) {
-        const position = new Position(0, 0);
-        const size = new Size(width, height);
+        const position = Vector.from(0, 0);
+        const size = Vector.from(width, height);
         super(position, size);
 
         this.cellsPerAxis = cellsPerAxis;
 
-        const cellWidth = this.size.width / this.cellsPerAxis;
-        const cellHeight = this.size.height / this.cellsPerAxis;
-        this.cellSize = new Size(cellWidth, cellHeight);
+        const cellWidth = this.size.x / this.cellsPerAxis;
+        const cellHeight = this.size.y / this.cellsPerAxis;
+        this.cellSize = Vector.from(cellWidth, cellHeight);
 
         this.matrix = new BoardMatrix(cellsPerAxis, this.cellSize);
     }
@@ -33,14 +32,14 @@ export default class Board extends Tile {
     }
 
     draw(context) {
-        const padding = this.cellSize.minDimension * Styles.PADDING_SCALE;
-        const { width, height } = this.cellSize.subtractPadding(padding);
+        const padding = this.cellSize.smallestComponent * Styles.PADDING_SCALE;
+        const { x: width, y: height } = this.cellSize.subtract(padding * 2);
         const radius = padding * 2;
 
         context.fillStyle = Styles.BoardColor;
         for (let row = 0; row < this.cellsPerAxis; row++) {
             for (let column = 0; column < this.cellsPerAxis; column++) {
-                const { x, y } = Position.fromRowColumn(row, column, this.cellSize).addPadding(padding);
+                const { x, y } = Vector.from(column, row).multiply(this.cellSize).add(padding);
                 Drawing.fillRoundedRect(context, x, y, width, height, radius);
             }
         }

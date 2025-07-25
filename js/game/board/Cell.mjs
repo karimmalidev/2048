@@ -1,12 +1,12 @@
-import Position from '../../engine/tiles/Position.mjs';
 import LinearMovableTile from '../../engine/tiles/LinearMovableTile.mjs';
 import Styles from '../Styles.mjs';
 import Constants from '../Constants.mjs';
 import Drawing from '../../helpers/Drawing.mjs';
+import Vector from '../../helpers/Vector.mjs';
 
 export default class Cell extends LinearMovableTile {
     constructor(row, column, size, value) {
-        super(Position.fromRowColumn(row, column, size), size);
+        super(Vector.from(column, row).multiply(size), size);
 
         this.row = row;
         this.column = column;
@@ -24,14 +24,14 @@ export default class Cell extends LinearMovableTile {
     changeRowAndColumn(row, column) {
         const euclideanDistance = Math.hypot(row - this.row, column - this.column);
         const durationInSeconds = euclideanDistance * Constants.CELL_MOVE_DURATION_IN_SECONDS;
-        const target = Position.fromRowColumn(row, column, this.size);
+        const target = Vector.from(column, row).multiply(this.size);
         this.setMovement(target, durationInSeconds);
         this.row = row;
         this.column = column;
     }
 
     draw(context) {
-        const { width, height } = this.size;
+        const { x: width, y: height } = this.size;
         const { x, y } = this.position;
         const { BG, FG } = Styles.CellsColors[this.value];
 

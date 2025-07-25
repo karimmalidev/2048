@@ -1,4 +1,4 @@
-import Position from './tiles/Position.mjs';
+import Vector from '../helpers/Vector.mjs';
 import Direction from './Direction.mjs';
 
 const SWIPE_DISTANCE_THRESHOLD = 30;
@@ -9,8 +9,8 @@ export default class MoveInputListener {
         this.canvas = canvas;
         this._callback = moveInputCallback;
 
-        this.start = new Position();
-        this.end = new Position();
+        this.start = new Vector(0, 0);
+        this.end = new Vector(0, 0);
 
         this._addEventListeners();
     }
@@ -51,13 +51,13 @@ export default class MoveInputListener {
     _onStartEvent = (e) => {
         e.preventDefault();
         const { clientX: x, clientY: y } = e.touches ? e.touches[0] : e;
-        this.start = new Position(x, y);
+        this.start = new Vector(x, y);
     }
 
     _onEndEvent = (e) => {
         e.preventDefault();
         const { clientX: x, clientY: y } = e.changedTouches ? e.changedTouches[0] : e;
-        this.end = new Position(x, y);
+        this.end = new Vector(x, y);
         this._swipeCallback();
     }
 
