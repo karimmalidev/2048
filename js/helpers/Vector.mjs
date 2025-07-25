@@ -28,12 +28,16 @@ export default class Vector {
         return Math.max(this.x, this.y);
     }
 
+    get magnitude() {
+        return Math.hypot(this.x, this.y);
+    }
+
     equals(other) {
         const v = Vector.from(other);
         return this.x === v.x && this.y === v.y;
     }
 
-    absolute = () => Vector.from(Math.abs(this.x), Math.abs(this.y));
+    absolute = () => this.applyComponentwise(Math.abs);
     add = (other) => this.applyComponentwise((a, b) => a + b, other);
     subtract = (other) => this.applyComponentwise((a, b) => a - b, other);
     multiply = (other) => this.applyComponentwise((a, b) => a * b, other);
