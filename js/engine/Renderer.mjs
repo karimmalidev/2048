@@ -1,4 +1,3 @@
-import Tile from "./tiles/Tile.mjs";
 import MovableTile from "./tiles/MovableTile.mjs";
 
 export default class Renderer {
@@ -14,7 +13,7 @@ export default class Renderer {
     }
 
     start() {
-        this._render(performance.now());
+        this.#render(performance.now());
     }
 
     get tiles() {
@@ -25,26 +24,25 @@ export default class Renderer {
         return this.tiles.filter(tile => tile instanceof MovableTile);
     }
 
-    _move(timeDeltaInSeconds) {
+    #updatePositions(timeDeltaInSeconds) {
         for (const tile of this.movableTiles) {
             tile.move(timeDeltaInSeconds);
         }
     }
 
-    _draw() {
+    #draw() {
         this.clear();
-
         for (const tile of this.tiles) {
             tile.draw(this.context);
         }
     }
 
-    _render = (timestamp) => {
+    #render = (timestamp) => {
         const timeDeltaInMilliseconds = (timestamp - this.lastRenderTimestamp);
         this.lastRenderTimestamp = timestamp;
         const timeDeltaInSeconds = timeDeltaInMilliseconds / 1000;
-        this._move(timeDeltaInSeconds);
-        this._draw(this.context)
-        requestAnimationFrame(this._render);
+        this.#updatePositions(timeDeltaInSeconds);
+        this.#draw(this.context)
+        requestAnimationFrame(this.#render);
     }
 }

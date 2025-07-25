@@ -1,91 +1,75 @@
 import Vector from '../helpers/Vector.mjs';
 import Direction from './Direction.mjs';
+import Swipe from './Swipe.mjs';
 
-const SWIPE_DISTANCE_THRESHOLD = 30;
 
 export default class MoveInputListener {
+    #canvas
+    #moveInputCallback
+    #start
+    #end
 
     constructor(canvas, moveInputCallback) {
-        this.canvas = canvas;
-        this._callback = moveInputCallback;
+        this.#canvas = canvas;
+        this.#moveInputCallback = moveInputCallback;
 
-        this.start = new Vector(0, 0);
-        this.end = new Vector(0, 0);
+        this.#start = new Vector(0, 0);
+        this.#end = new Vector(0, 0);
 
-        this._addEventListeners();
+        this.#addEventListeners();
     }
 
-    _addEventListeners() {
-        window.addEventListener('keydown', this._onKeyDown);
-        window.addEventListener('mousedown', this._onStartEvent);
-        window.addEventListener('mouseup', this._onEndEvent);
-        this.canvas.addEventListener('touchstart', this._onStartEvent, { passive: false });
-        this.canvas.addEventListener('touchend', this._onEndEvent, { passive: false });
+    #addEventListeners() {
+        window.addEventListener('keydown', this.#onKeyDownCallback);
+        window.addEventListener('mousedown', this.#onStartEventCallback);
+        window.addEventListener('mouseup', this.#onEndEventCallback);
+        this.#canvas.addEventListener('touchstart', this.#onStartEventCallback, { passive: false });
+        this.#canvas.addEventListener('touchend', this.#onEndEventCallback, { passive: false });
     }
 
-    _onKeyDown = (e) => {
-        switch (e.key) {
-            case 'ArrowUp':
-            case 'w':
-            case 'W':
-                this._callback(Direction.UP);
-                break;
-            case 'ArrowDown':
-            case 'S':
-            case 's':
-                this._callback(Direction.DOWN);
-                break;
-            case 'ArrowLeft':
-            case 'A':
-            case 'a':
-                this._callback(Direction.LEFT);
-                break;
-            case 'ArrowRight':
-            case 'D':
-            case 'd':
-                this._callback(Direction.RIGHT);
-                break;
+    #onKeyDownCallback = (event) => {
+        for (const [direction, keys] of keyMap.entries()) {
+            if (keys.has(event.key)) {
+                this.#moveInputCallback(direction);
+            }
         }
     }
 
-    _onStartEvent = (e) => {
-        e.preventDefault();
-        const { clientX: x, clientY: y } = e.touches ? e.touches[0] : e;
-        this.start = new Vector(x, y);
+    #onStartEventCallback = (event) => {
+        event.preventDefault();
+        this.#updateStart(event);
     }
 
-    _onEndEvent = (e) => {
-        e.preventDefault();
-        const { clientX: x, clientY: y } = e.changedTouches ? e.changedTouches[0] : e;
-        this.end = new Vector(x, y);
-        this._swipeCallback();
+    #updateStart(event) {
+        const { clientX: x, clientY: y } = event.touches ? event.touches[0] : event;
+        this.#start = new Vector(x, y);
     }
 
-    _swipeDistance() {
-        return this.end.subtract(this.start);
-    }
-
-    _isHorizontalSwipe(x, y) {
-        return Math.abs(x) > Math.abs(y);
-    }
-
-    _swipeCallback() {
-        const { x, y } = this._swipeDistance();
-
-        if (this._isHorizontalSwipe(x, y)) {
-            if (x > SWIPE_DISTANCE_THRESHOLD) this._callback(Direction.RIGHT);
-            else if (x < -SWIPE_DISTANCE_THRESHOLD) this._callback(Direction.LEFT);
-        } else {
-            if (y > SWIPE_DISTANCE_THRESHOLD) this._callback(Direction.DOWN);
-            else if (y < -SWIPE_DISTANCE_THRESHOLD) this._callback(Direction.UP);
+    #onEndEventCallback = (event) => {
+        event.preventDefault();
+        this.#updateEnd(event);
+        const swipe = new Swipe(this.#start, this.#end);
+        if (Direction.isValid(swipe.direction)) {
+            this.#moveInputCallback(swipe.direction);
         }
+    }
+
+    #updateEnd(event) {
+        const { clientX: x, clientY: y } = event.changedTouches ? event.changedTouches[0] : event;
+        this.#end = new Vector(x, y);
     }
 
     destroy() {
-        window.removeEventListener('keydown', this._onKeyDown);
-        window.removeEventListener('mousedown', this._onStartEvent);
-        window.removeEventListener('mouseup', this._onEndEvent);
-        window.removeEventListener('touchstart', this._onStartEvent);
-        window.removeEventListener('touchend', this._onEndEvent);
+        window.removeEventListener('keydown', this.#onKeyDownCallback);
+        window.removeEventListener('mousedown', this.#onStartEventCallback);
+        window.removeEventListener('mouseup', this.#onEndEventCallback);
+        this.#canvas.removeEventListener('touchstart', this.#onStartEventCallback);
+        this.#canvas.removeEventListener('touchend', this.#onEndEventCallback);
     }
 }
+
+const keyMap = new Map;
+keyMap.set(Direction.UP, new Set(['ArrowUp', 'W', 'w', 'K', 'k']));
+keyMap.set(Direction.DOWN, new Set(['ArrowDown', 'S', 's', 'J', 'j']));
+keyMap.set(Direction.LEFT, new Set(['ArrowLeft', 'A', 'a', 'H', 'h']));
+keyMap.set(Direction.RIGHT, new Set(['ArrowRight', 'D', 'd', 'L', 'l']));

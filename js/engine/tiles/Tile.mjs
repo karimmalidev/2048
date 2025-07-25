@@ -7,6 +7,6 @@ export default class Tile {
     }
 
     draw(context) {
-        throw new Error('Not implemented');
+        throw new SyntaxError('Not implemented');
     }
 }

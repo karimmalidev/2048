@@ -25,7 +25,7 @@ export default class Cell extends LinearMovableTile {
         const euclideanDistance = Math.hypot(row - this.row, column - this.column);
         const durationInSeconds = euclideanDistance * Constants.CELL_MOVE_DURATION_IN_SECONDS;
         const target = Vector.from(column, row).multiply(this.size);
-        this.setMovement(target, durationInSeconds);
+        this.setTarget(target, durationInSeconds);
         this.row = row;
         this.column = column;
     }
