@@ -10,7 +10,7 @@ function convertMajorMinorToRowColumn(isRowMajor, major, minor) {
 }
 
 
-export default class BoardMatrix {
+export default class BoardLogic {
     constructor(renderer, logicalSize, cellDrawingSize) {
         this.logicalSize = Vector.from(logicalSize);
         this.cellDrawingSize = Vector.from(cellDrawingSize);
@@ -46,7 +46,7 @@ export default class BoardMatrix {
     }
 
 
-    _getLoopParamsToMoveToward(direction) {
+    _getLoopParamsToMoveToward = (direction) => {
         const rows = this.logicalSize.y;
         const columns = this.logicalSize.x;
 
@@ -123,7 +123,7 @@ export default class BoardMatrix {
         return gotAnyMoves;
     }
 
-    moveCellsToward(direction) {
+    moveCellsToward = (direction) => {
         const { isRowMajor, majorParams, minorParams } = this._getLoopParamsToMoveToward(direction);
         const [majorBegin, majorEnd, majorStep] = majorParams;
 
