@@ -1,130 +1,84 @@
-import Matrix from '../../helpers/Matrix.mjs';
-import Random from '../../helpers/Random.mjs';
-import Cell from './Cell.mjs';
-import Direction from '../../engine/Direction.mjs';
-
-
-function convertMajorMinorToRowColumn(isRowMajor, major, minor) {
-    return isRowMajor ? [major, minor] : [minor, major];
-}
+import Matrix from '../../utils/Matrix.mjs';
+import Random from '../../utils/Random.mjs';
+import Direction from '../../core/input/Direction.mjs';
+import Vector from '../../utils/Vector.mjs';
 
 
 export default class BoardMatrix extends Matrix {
-    constructor(cellsPerAxis, cellSize) {
-        super(cellsPerAxis, cellsPerAxis);
-        this.cellSize = cellSize;
-
-        this.addCellRandomly();
-        this.addCellRandomly();
+    findRandomEmptyPosition() {
+        return Random.sampleOf(this.getEmptyPositions());
     }
 
-    addCell(row, column, value) {
-        const size = this.cellSize;
-        const cell = new Cell(row, column, size, value);
-        this.setCell(row, column, cell);
-    }
+    findMoves = (direction) => {
+        let moves = [];
 
-    addCellRandomly(value) {
-        if (value === undefined) {
-            value = Math.random <= 0.1 ? 4 : 2;
+        const isHorizontal = Direction.isHorizontal(direction);
+        const lines = isHorizontal ? this.size.y : this.size.x;
+
+        const copy = this.copy();
+
+        for (let lineIndex = 0; lineIndex < lines; lineIndex++) {
+            moves = moves.concat(BoardMatrix.#findMovesInLine(copy, lineIndex, direction));
         }
-        const freeRowColumnPairs = this.getUndefinedCellsRowColumns();
-        if (freeRowColumnPairs.length == 0) {
-            return;
+
+        return moves;
+    }
+
+    static #findMovesInLine(copy, lineIndex, direction) {
+        if (!(copy instanceof Matrix)) {
+            throw new TypeError(`Expected instance of Matrix, got ${typeof copy}`)
         }
-        const { row, column } = Random.sampleOf(freeRowColumnPairs);
-        this.addCell(row, column, value);
-    }
+
+        let moves = [];
+
+        const isHorizontal = Direction.isHorizontal(direction);
+        const cellsPerLine = isHorizontal ? copy.size.x : copy.size.y;
+
+        const [begin, end, step] = Direction.isForward(direction) ?
+            [cellsPerLine - 1, -1, -1] : [0, cellsPerLine, 1];
 
 
-    _getLoopParamsToMoveToward(direction) {
-        const rows = this.numberOfRows;
-        const columns = this.numberOfColumns;
+        let scanIndexEnd = begin - step;
 
-        const LoopParams = {
-            [Direction.UP]: {
-                isRowMajor: false,
-                majorParams: [0, columns, 1],
-                minorParams: [0, rows, 1]
-            },
-            [Direction.DOWN]: {
-                isRowMajor: false,
-                majorParams: [0, columns, 1],
-                minorParams: [rows - 1, -1, -1]
-            },
-            [Direction.LEFT]: {
-                isRowMajor: true,
-                majorParams: [0, rows, 1],
-                minorParams: [0, columns, 1]
-            },
-            [Direction.RIGHT]: {
-                isRowMajor: true,
-                majorParams: [0, rows, 1],
-                minorParams: [columns - 1, -1, -1]
-            }
-        };
 
-        return LoopParams[direction];
-    }
-
-    _moveCellsInMajor(isRowMajor, major, minorParams) {
-        const [minorBegin, minorEnd, minorStep] = minorParams;
-
-        let tmpEnd = minorBegin - minorStep;
-
-        let gotAnyMoves = false;
-
-        for (let minor = minorBegin + minorStep; minor != minorEnd; minor += minorStep) {
-            const [row, column] = convertMajorMinorToRowColumn(isRowMajor, major, minor);
-            if (!this.isDefinedCell(row, column)) {
+        for (let sourceCellIndex = begin; sourceCellIndex != end; sourceCellIndex += step) {
+            const source = BoardMatrix.#createPosition(isHorizontal, lineIndex, sourceCellIndex);
+            if (!copy.has(source)) {
                 continue;
             }
 
-            const cell = this.getCell(row, column);
-
-            let targetMinor = undefined;
             let doDouble = false;
+            let destination = null;
 
-            for (let tmpMinor = minor - minorStep; tmpMinor != tmpEnd; tmpMinor -= minorStep) {
-                const [tmpRow, tmpColumn] = convertMajorMinorToRowColumn(isRowMajor, major, tmpMinor);
-                if (this.isDefinedCell(tmpRow, tmpColumn)) {
-                    const tmpCell = this.getCell(tmpRow, tmpColumn);
-                    if (tmpCell.equals(cell)) {
-                        targetMinor = tmpMinor;
+            for (let scanCellIndex = sourceCellIndex - step; scanCellIndex != scanIndexEnd; scanCellIndex -= step) {
+                const scan = BoardMatrix.#createPosition(isHorizontal, lineIndex, scanCellIndex);
+                if (!copy.has(scan)) {
+                    destination = scan;
+                } else {
+                    if (copy.get(source) === copy.get(scan)) {
+                        destination = scan;
                         doDouble = true;
-                        tmpEnd += minorStep;
+                        scanIndexEnd += step;
                     }
                     break;
                 }
-                targetMinor = tmpMinor;
             }
 
-            if (targetMinor !== undefined) {
-                const [targetRow, targetColumn] = convertMajorMinorToRowColumn(isRowMajor, major, targetMinor);
-                cell.changeRowAndColumn(targetRow, targetColumn);
-                this.moveCell(row, column, targetRow, targetColumn);
+            if (destination != null) {
+                moves.push({ source, destination, doDouble });
                 if (doDouble) {
-                    cell.setToDouble();
+                    copy.set(source, copy.get(source) * 2);
                 }
-                gotAnyMoves = true;
+                copy.move(source, destination);
             }
         }
 
-        return gotAnyMoves;
+        return moves;
     }
 
-    moveCellsToward(direction) {
-        const { isRowMajor, majorParams, minorParams } = this._getLoopParamsToMoveToward(direction);
-        const [majorBegin, majorEnd, majorStep] = majorParams;
-
-        let gotAnyMoves = false;
-
-        for (let major = majorBegin; major != majorEnd; major += majorStep) {
-            gotAnyMoves |= this._moveCellsInMajor(isRowMajor, major, minorParams);
-        }
-
-        if (gotAnyMoves) {
-            this.addCellRandomly();
-        }
+    static #createPosition(isHorizontal, lineIndex, cellIndex) {
+        return Vector.from(
+            ...(isHorizontal ? [cellIndex, lineIndex] : [lineIndex, cellIndex])
+        );
     }
 }

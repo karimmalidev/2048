@@ -1,48 +1,105 @@
-import Position from "../../engine/tiles/Position.mjs";
-import Size from "../../engine/tiles/Size.mjs";
-import Tile from "../../engine/tiles/Tile.mjs";
-import Styles from '../Styles.mjs';
-import BoardMatrix from './BoardMatrix.mjs';
-import Drawing from "../../helpers/Drawing.mjs";
+import Renderer from "../../core/graphics/Renderer.mjs";
+import Matrix from "../../utils/Matrix.mjs";
+import Vector from "../../utils/Vector.mjs";
+import BoardMatrix from "./BoardMatrix.mjs";
+import BoardTile from "./BoardTile.mjs";
+import CellTile from "./CellTile.mjs";
+import MoveTileAnimator from '../../core/graphics/tile_animator/MoveTileAnimator.mjs';
+import Constants from "../Constants.mjs";
 
-export default class Board extends Tile {
-    constructor(cellsPerAxis, width, height) {
-        const position = new Position(0, 0);
-        const size = new Size(width, height);
-        super(position, size);
+export default class Board {
+    constructor(renderer, logicalSize, drawingPosition, drawingSize) {
+        if (!(renderer instanceof Renderer)) {
+            throw TypeError;
+        }
+        if (!(logicalSize instanceof Vector)) {
+            throw TypeError;
+        }
+        if (!(drawingPosition instanceof Vector)) {
+            throw TypeError;
+        }
+        if (!(drawingSize instanceof Vector)) {
+            throw TypeError;
+        }
+        this.renderer = renderer;
+        this.logicalSize = logicalSize;
+        this.drawingPosition = drawingPosition;
+        this.drawingSize = drawingSize;
 
-        this.cellsPerAxis = cellsPerAxis;
+        this.#init();
 
-        const cellWidth = this.size.width / this.cellsPerAxis;
-        const cellHeight = this.size.height / this.cellsPerAxis;
-        this.cellSize = new Size(cellWidth, cellHeight);
-
-        this.matrix = new BoardMatrix(cellsPerAxis, this.cellSize);
+        this.addRandomly();
+        this.addRandomly();
     }
 
-    get cells() {
-        return this.matrix.getDefinedCells();
-    }
-
-    get tiles() {
-        return [this, ...this.cells];
-    }
 
     moveInputCallback = (direction) => {
-        this.matrix.moveCellsToward(direction);
-    }
-
-    draw(context) {
-        const padding = this.cellSize.minDimension * Styles.PADDING_SCALE;
-        const { width, height } = this.cellSize.subtractPadding(padding);
-        const radius = padding * 2;
-
-        context.fillStyle = Styles.BoardColor;
-        for (let row = 0; row < this.cellsPerAxis; row++) {
-            for (let column = 0; column < this.cellsPerAxis; column++) {
-                const { x, y } = Position.fromRowColumn(row, column, this.cellSize).addPadding(padding);
-                Drawing.fillRoundedRect(context, x, y, width, height, radius);
+        // Block input when animation is running
+        if (this.renderer.animators.size !== 0) {
+            return;
+        }
+        const moves = this.boardMatrix.findMoves(direction);
+        for (const { source, destination, doDouble } of moves) {
+            this.move(source, destination);
+            if (doDouble) {
+                this.setToDouble(destination);
             }
         }
+        if (moves.length > 0) {
+            this.addRandomly();
+        }
     }
+
+    addRandomly() {
+        const position = this.boardMatrix.findRandomEmptyPosition();
+        if (position != null) {
+            this.add(position, Math.random() < 0.1 ? 4 : 2);
+        }
+    }
+
+    setToDouble(position) {
+        this.tilesMatrix.get(position).drawingValue *= 2;
+        this.boardMatrix.set(position, this.boardMatrix.get(position) * 2);
+    }
+
+    add(position, value) {
+        const cellTile = new CellTile(
+            this.#convertIntoDrawingPosition(position),
+            this.cellDrawingSize,
+            value
+        );
+        this.renderer.tiles.add(cellTile);
+        this.tilesMatrix.set(position, cellTile);
+        this.boardMatrix.set(position, value);
+    }
+
+    move(source, destination) {
+        this.renderer.tiles.delete(this.tilesMatrix.get(destination));
+        this.renderer.animators.add(
+            new MoveTileAnimator(
+                this.tilesMatrix.get(source),
+                Vector.from(source).distance(destination) * Constants.CELL_MOVE_DURATION_IN_SECONDS,
+                this.#convertIntoDrawingPosition(destination)
+            )
+        );
+        this.tilesMatrix.move(source, destination);
+        this.boardMatrix.move(source, destination);
+    }
+
+
+    #convertIntoDrawingPosition(position) {
+        return this.drawingPosition.add(this.cellDrawingSize.multiply(position));
+    }
+
+    #init() {
+        this.cellDrawingSize = Vector.from(this.drawingSize).divide(this.logicalSize);
+
+        this.boardTile = new BoardTile(this.logicalSize, this.drawingPosition, this.drawingSize);
+        this.renderer.tiles.add(this.boardTile);
+
+        this.boardMatrix = new BoardMatrix(this.logicalSize);
+
+        this.tilesMatrix = new Matrix(this.logicalSize);
+    }
+
 }
