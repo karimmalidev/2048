@@ -56,6 +56,10 @@ export default class Vector {
             operator(...vectors.map(v => v.y))
         );
     }
+
+    toString() {
+        return `(${this.x}, ${this.y})`
+    }
 }
 
 

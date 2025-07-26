@@ -1,48 +1,16 @@
 import GameStyles from '../GameStyles.mjs';
-import Constants from '../Constants.mjs';
 import Drawing from '../../utils/Drawing.mjs';
-import Vector from '../../utils/Vector.mjs';
 import Tile from '../../core/graphics/Tile.mjs';
-import Renderer from '../../core/graphics/Renderer.mjs';
-import MoveTileAnimator from '../../core/graphics/tile_animator/MoveTileAnimator.mjs';
-
-
 export default class CellTile extends Tile {
-    constructor(renderer, logicalPosition, drawingSize, value) {
-        super(Vector.from(logicalPosition).multiply(drawingSize), drawingSize);
-
-        if (!(renderer instanceof Renderer)) {
-            throw new TypeError(`Expected instance of Renderer, got ${typeof renderer}`);
-        }
-        this.renderer = renderer;
-
-        this.logicalPosition = Vector.from(logicalPosition);
-        this.value = value;
-    }
-
-    equals(cell) {
-        return this.value === cell.value;
-    }
-
-    setToDouble() {
-        this.value *= 2;
-    }
-
-    changePosition(logicalPosition) {
-        this.renderer.animators.add(
-            new MoveTileAnimator(
-                this,
-                this.logicalPosition.distance(logicalPosition) * Constants.CELL_MOVE_DURATION_IN_SECONDS,
-                Vector.from(logicalPosition).multiply(this.drawingSize)
-            )
-        );
-        this.logicalPosition = logicalPosition;
+    constructor(drawingPosition, drawingSize, drawingValue) {
+        super(drawingPosition, drawingSize);
+        this.drawingValue = drawingValue;
     }
 
     draw(context) {
         const { x: width, y: height } = this.drawingSize;
         const { x, y } = this.drawingPosition;
-        const { BG, FG } = GameStyles.CellsColors[this.value];
+        const { BG, FG } = GameStyles.CellsColors[this.drawingValue];
 
         const PAD = width * 0.05;
 
@@ -56,7 +24,7 @@ export default class CellTile extends Tile {
         Drawing.fillRoundedRect(context, x + PAD, y + PAD, width - 2 * PAD, height - 2 * PAD, PAD * 2);
 
 
-        const text = this.value.toString();
+        const text = this.drawingValue.toString();
 
         const scale = text.length <= 2 ? 0.4 : 0.3;
         const fontSize = scale * Math.min(width, height);

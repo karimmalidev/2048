@@ -46,6 +46,17 @@ export default class Matrix {
         return positions;
     }
 
+    copy() {
+        const result = new Matrix(this.size);
+        for (let x = 0; x < this.size.x; x++) {
+            for (let y = 0; y < this.size.y; y++) {
+                const position = Vector.from(x, y);
+                result.set(position, this.get(position));
+            }
+        }
+        return result;
+    }
+
     #create2DArray() {
         return Array.from(
             { length: this.size.x },
