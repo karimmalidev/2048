@@ -1,9 +1,9 @@
-import Matrix from '../../helpers/Matrix.mjs';
-import Random from '../../helpers/Random.mjs';
+import Matrix from '../../utils/Matrix.mjs';
+import Random from '../../utils/Random.mjs';
 import CellTile from './CellTile.mjs';
-import Direction from '../../engine/control/Direction.mjs';
-import Vector from '../../helpers/Vector.mjs';
-import Renderer from '../../engine/graphics/Renderer.mjs';
+import Direction from '../../core/input/Direction.mjs';
+import Vector from '../../utils/Vector.mjs';
+import Renderer from '../../core/graphics/Renderer.mjs';
 
 function convertMajorMinorToRowColumn(isRowMajor, major, minor) {
     return isRowMajor ? [major, minor] : [minor, major];

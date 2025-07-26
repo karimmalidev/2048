@@ -1,4 +1,4 @@
-import Vector from "../../helpers/Vector.mjs";
+import Vector from "../../utils/Vector.mjs";
 import Direction from "./Direction.mjs";
 
 export default class Swipe {

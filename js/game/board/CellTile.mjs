@@ -1,10 +1,10 @@
-import Styles from '../Styles.mjs';
+import GameStyles from '../GameStyles.mjs';
 import Constants from '../Constants.mjs';
-import Drawing from '../../helpers/Drawing.mjs';
-import Vector from '../../helpers/Vector.mjs';
-import Tile from '../../engine/graphics/Tile.mjs';
-import Renderer from '../../engine/graphics/Renderer.mjs';
-import MoveTileAnimator from '../../engine/graphics/tile_animator/MoveTileAnimator.mjs';
+import Drawing from '../../utils/Drawing.mjs';
+import Vector from '../../utils/Vector.mjs';
+import Tile from '../../core/graphics/Tile.mjs';
+import Renderer from '../../core/graphics/Renderer.mjs';
+import MoveTileAnimator from '../../core/graphics/tile_animator/MoveTileAnimator.mjs';
 
 
 export default class CellTile extends Tile {
@@ -42,7 +42,7 @@ export default class CellTile extends Tile {
     draw(context) {
         const { x: width, y: height } = this.drawingSize;
         const { x, y } = this.drawingPosition;
-        const { BG, FG } = Styles.CellsColors[this.value];
+        const { BG, FG } = GameStyles.CellsColors[this.value];
 
         const PAD = width * 0.05;
 

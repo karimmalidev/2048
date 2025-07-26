@@ -1,4 +1,4 @@
-import Vector from "../../../helpers/Vector.mjs";
+import Vector from "../../../utils/Vector.mjs";
 import TileAnimator from "./TileAnimator.mjs";
 
 export default class MoveTileAnimator extends TileAnimator {

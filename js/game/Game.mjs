@@ -1,8 +1,8 @@
-import Renderer from './../engine/graphics/Renderer.mjs';
-import MoveInputListener from './../engine/control/MoveInputListener.mjs';
+import Renderer from './../core/graphics/Renderer.mjs';
+import MoveInputListener from './../core/input/MoveInputListener.mjs';
 import Board from './board/Board.mjs';
 import Constants from './Constants.mjs';
-import Vector from '../helpers/Vector.mjs';
+import Vector from '../utils/Vector.mjs';
 
 export default class Game {
     constructor(canvas) {

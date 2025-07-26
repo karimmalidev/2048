@@ -1,9 +1,9 @@
-import Vector from "../../helpers/Vector.mjs";
-import Tile from "../../engine/graphics/Tile.mjs";
-import Styles from '../Styles.mjs';
+import Vector from "../../utils/Vector.mjs";
+import Tile from "../../core/graphics/Tile.mjs";
+import GameStyles from '../GameStyles.mjs';
 import BoardMatrix from './BoardMatrix.mjs';
-import Drawing from "../../helpers/Drawing.mjs";
-import Renderer from "../../engine/graphics/Renderer.mjs";
+import Drawing from "../../utils/Drawing.mjs";
+import Renderer from "../../core/graphics/Renderer.mjs";
 
 export default class Board extends Tile {
     constructor(renderer, logicalSize, drawingPosition, drawingSize) {
@@ -29,7 +29,7 @@ export default class Board extends Tile {
     }
 
     draw(context) {
-        context.fillStyle = Styles.BoardColor;
+        context.fillStyle = GameStyles.BoardColor;
         for (let y = this._yStart; y < this._yEnd; y += this._yStep) {
             for (let x = this._xStart; x < this._xEnd; x += this._xStep) {
                 Drawing.fillRoundedRect(context, x, y, this._width, this._height, this._radius);
@@ -38,7 +38,7 @@ export default class Board extends Tile {
     }
 
     #initDrawingParameters() {
-        this._padding = this.cellDrawingSize.smallestComponent * Styles.PADDING_SCALE;
+        this._padding = this.cellDrawingSize.smallestComponent * GameStyles.PADDING_SCALE;
         this._radius = this._padding * 2;
 
         this._yStart = this.drawingPosition.y + this._padding;

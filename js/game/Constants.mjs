@@ -1,4 +1,4 @@
-import Vector from "../helpers/Vector.mjs";
+import Vector from "../utils/Vector.mjs";
 
 const CELLS_PER_AXIS = 4;
 const LONGEST_MOVE_DURATION_IN_SECONDS = 0.1;
