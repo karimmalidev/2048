@@ -1,4 +1,4 @@
-import MovableTile from "./tiles/MovableTile.mjs";
+import MovableTile from './MovableTile.mjs';
 
 export default class Renderer {
     constructor(context, tilesParent) {

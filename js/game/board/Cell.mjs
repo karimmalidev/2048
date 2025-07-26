@@ -1,4 +1,4 @@
-import LinearMovableTile from '../../engine/tiles/LinearMovableTile.mjs';
+import LinearMovableTile from '../../engine/graphics/LinearMovableTile.mjs';
 import Styles from '../Styles.mjs';
 import Constants from '../Constants.mjs';
 import Drawing from '../../helpers/Drawing.mjs';

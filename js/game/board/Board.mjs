@@ -1,5 +1,5 @@
 import Vector from "../../helpers/Vector.mjs";
-import Tile from "../../engine/tiles/Tile.mjs";
+import Tile from "../../engine/graphics/Tile.mjs";
 import Styles from '../Styles.mjs';
 import BoardMatrix from './BoardMatrix.mjs';
 import Drawing from "../../helpers/Drawing.mjs";

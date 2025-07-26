@@ -1,5 +1,5 @@
-import Renderer from './../engine/Renderer.mjs';
-import MoveInputListener from './../engine/MoveInputListener.mjs';
+import Renderer from './../engine/graphics/Renderer.mjs';
+import MoveInputListener from './../engine/control/MoveInputListener.mjs';
 import Board from './board/Board.mjs';
 import Constants from './Constants.mjs';
 

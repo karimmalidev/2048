@@ -1,7 +1,7 @@
 import Matrix from '../../helpers/Matrix.mjs';
 import Random from '../../helpers/Random.mjs';
 import Cell from './Cell.mjs';
-import Direction from '../../engine/Direction.mjs';
+import Direction from '../../engine/control/Direction.mjs';
 
 
 function convertMajorMinorToRowColumn(isRowMajor, major, minor) {
