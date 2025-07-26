@@ -1,8 +1,9 @@
 import Matrix from '../../helpers/Matrix.mjs';
 import Random from '../../helpers/Random.mjs';
-import Cell from './Cell.mjs';
+import CellTile from './CellTile.mjs';
 import Direction from '../../engine/control/Direction.mjs';
 import Vector from '../../helpers/Vector.mjs';
+import Renderer from '../../engine/graphics/Renderer.mjs';
 
 function convertMajorMinorToRowColumn(isRowMajor, major, minor) {
     return isRowMajor ? [major, minor] : [minor, major];
@@ -10,20 +11,27 @@ function convertMajorMinorToRowColumn(isRowMajor, major, minor) {
 
 
 export default class BoardMatrix {
-    constructor(logicalSize, cellDrawingSize) {
+    constructor(renderer, logicalSize, cellDrawingSize) {
         this.logicalSize = Vector.from(logicalSize);
         this.cellDrawingSize = Vector.from(cellDrawingSize);
         this.matrix = new Matrix(logicalSize);
+
+        if (!(renderer instanceof Renderer)) {
+            throw new TypeError(`Expected instance of Renderer, got ${typeof renderer}`)
+        }
+        this.renderer = renderer;
 
         this.addCellRandomly();
         this.addCellRandomly();
     }
 
     addCell(position, value) {
+        const cellTile = new CellTile(this.renderer, position, this.cellDrawingSize, value);
         this.matrix.set(
             position,
-            new Cell(position, this.cellDrawingSize, value)
+            cellTile
         );
+        this.renderer.tiles.add(cellTile);
     }
 
     addCellRandomly(value) {
@@ -34,7 +42,7 @@ export default class BoardMatrix {
         if (emptyPositions.length === 0) {
             return;
         }
-        this.addCell(Random.sampleOf(emptyPositions),  value);
+        this.addCell(Random.sampleOf(emptyPositions), value);
     }
 
 
@@ -81,7 +89,7 @@ export default class BoardMatrix {
                 continue;
             }
 
-            const cell = this.matrix.get(Vector.from(column,row));
+            const cell = this.matrix.get(Vector.from(column, row));
 
             let targetMinor = undefined;
             let doDouble = false;
@@ -103,10 +111,11 @@ export default class BoardMatrix {
             if (targetMinor !== undefined) {
                 const [targetRow, targetColumn] = convertMajorMinorToRowColumn(isRowMajor, major, targetMinor);
                 cell.changePosition(Vector.from(targetColumn, targetRow));
-                this.matrix.move(Vector.from(column, row), Vector.from(targetColumn, targetRow));
                 if (doDouble) {
+                    this.renderer.tiles.delete(this.matrix.get(Vector.from(targetColumn, targetRow)));
                     cell.setToDouble();
                 }
+                this.matrix.move(Vector.from(column, row), Vector.from(targetColumn, targetRow));
                 gotAnyMoves = true;
             }
         }

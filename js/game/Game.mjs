@@ -6,15 +6,15 @@ import Vector from '../helpers/Vector.mjs';
 
 export default class Game {
     constructor(canvas) {
+        this.renderer = new Renderer(
+            canvas.getContext('2d')
+        );
+
         this.board = new Board(
+            this.renderer,
             Constants.BOARD_SIZE,
             Vector.from(0, 0),
             Vector.from(canvas.width, canvas.height)
-        );
-
-        this.renderer = new Renderer(
-            canvas.getContext('2d'),
-            this.board
         );
 
         this.moveInputListener = new MoveInputListener(

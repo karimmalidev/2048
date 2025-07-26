@@ -1,12 +1,20 @@
-import LinearMovableTile from '../../engine/graphics/LinearMovableTile.mjs';
 import Styles from '../Styles.mjs';
 import Constants from '../Constants.mjs';
 import Drawing from '../../helpers/Drawing.mjs';
 import Vector from '../../helpers/Vector.mjs';
+import Tile from '../../engine/graphics/Tile.mjs';
+import Renderer from '../../engine/graphics/Renderer.mjs';
+import MoveTileAnimator from '../../engine/graphics/tile_animator/MoveTileAnimator.mjs';
 
-export default class Cell extends LinearMovableTile {
-    constructor(logicalPosition, drawingSize, value) {
+
+export default class CellTile extends Tile {
+    constructor(renderer, logicalPosition, drawingSize, value) {
         super(Vector.from(logicalPosition).multiply(drawingSize), drawingSize);
+
+        if (!(renderer instanceof Renderer)) {
+            throw new TypeError(`Expected instance of Renderer, got ${typeof renderer}`);
+        }
+        this.renderer = renderer;
 
         this.logicalPosition = Vector.from(logicalPosition);
         this.value = value;
@@ -20,11 +28,15 @@ export default class Cell extends LinearMovableTile {
         this.value *= 2;
     }
 
-    changePosition(position) {
-        const durationInSeconds = this.logicalPosition.distance(position) * Constants.CELL_MOVE_DURATION_IN_SECONDS;
-        const target = Vector.from(position).multiply(this.drawingSize);
-        this.setTarget(target, durationInSeconds);
-        this.logicalPosition = position;
+    changePosition(logicalPosition) {
+        this.renderer.animators.add(
+            new MoveTileAnimator(
+                this,
+                this.logicalPosition.distance(logicalPosition) * Constants.CELL_MOVE_DURATION_IN_SECONDS,
+                Vector.from(logicalPosition).multiply(this.drawingSize)
+            )
+        );
+        this.logicalPosition = logicalPosition;
     }
 
     draw(context) {

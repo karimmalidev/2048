@@ -3,27 +3,25 @@ import Tile from "../../engine/graphics/Tile.mjs";
 import Styles from '../Styles.mjs';
 import BoardMatrix from './BoardMatrix.mjs';
 import Drawing from "../../helpers/Drawing.mjs";
+import Renderer from "../../engine/graphics/Renderer.mjs";
 
 export default class Board extends Tile {
-    constructor(logicalSize, drawingPosition, drawingSize) {
+    constructor(renderer, logicalSize, drawingPosition, drawingSize) {
         super(drawingPosition, drawingSize);
+
+        if (!(renderer instanceof Renderer)) {
+            throw new TypeError(`Expected instance of Renderer, got ${typeof renderer}`);
+        }
+        this.renderer = renderer;
+        this.renderer.tiles.add(this);
 
         this.logicalSize = Vector.from(logicalSize);
         this.drawingSize = Vector.from(drawingSize);
         this.cellDrawingSize = this.drawingSize.divide(logicalSize);
 
-        this.matrix = new BoardMatrix(logicalSize, this.cellDrawingSize);
+        this.matrix = new BoardMatrix(renderer, logicalSize, this.cellDrawingSize);
 
         this.#initDrawingParameters();
-    }
-
-
-    get cells() {
-        return this.matrix.matrix.getValues();
-    }
-
-    get tiles() {
-        return [this, ...this.cells];
     }
 
     moveInputCallback = (direction) => {

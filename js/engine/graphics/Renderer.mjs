@@ -1,48 +1,45 @@
-import MovableTile from './MovableTile.mjs';
-
 export default class Renderer {
-    constructor(context, tilesParent) {
-        this.context = context;
-        this.lastRenderTimestamp = performance.now();
-        this.tilesParent = tilesParent
-    }
+    #context
+    #lastTimestamp
 
-    clear() {
-        const { width, height } = this.context.canvas;
-        this.context.clearRect(0, 0, width, height);
+    constructor(context) {
+        this.#context = context;
+        this.#lastTimestamp = 0;
+        this.tiles = new Set();
+        this.animators = new Set();
     }
 
     start() {
-        this.#render(performance.now());
+        this.#lastTimestamp = performance.now();
+        this.#render(this.#lastTimestamp);
     }
 
-    get tiles() {
-        return this.tilesParent.tiles;
+    #render = (timestamp) => {
+        this.#update((timestamp - this.#lastTimestamp) / 1000);
+        this.#lastTimestamp = timestamp;
+        this.#draw();
+        requestAnimationFrame(this.#render);
     }
 
-    get movableTiles() {
-        return this.tiles.filter(tile => tile instanceof MovableTile);
-    }
-
-    #updatePositions(timeDeltaInSeconds) {
-        for (const tile of this.movableTiles) {
-            tile.move(timeDeltaInSeconds);
+    #update(timeDeltaInSeconds) {
+        for (const animator of this.animators) {
+            animator.update(timeDeltaInSeconds);
+            if (animator.isFinished()) {
+                this.animators.delete(animator);
+            }
         }
     }
 
     #draw() {
-        this.clear();
+        this.#clearCanvas();
         for (const tile of this.tiles) {
-            tile.draw(this.context);
+            tile.draw(this.#context);
         }
     }
 
-    #render = (timestamp) => {
-        const timeDeltaInMilliseconds = (timestamp - this.lastRenderTimestamp);
-        this.lastRenderTimestamp = timestamp;
-        const timeDeltaInSeconds = timeDeltaInMilliseconds / 1000;
-        this.#updatePositions(timeDeltaInSeconds);
-        this.#draw(this.context)
-        requestAnimationFrame(this.#render);
+    #clearCanvas() {
+        const { width, height } = this.#context.canvas;
+        this.#context.clearRect(0, 0, width, height);
     }
+
 }
