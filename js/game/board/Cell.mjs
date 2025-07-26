@@ -5,11 +5,10 @@ import Drawing from '../../helpers/Drawing.mjs';
 import Vector from '../../helpers/Vector.mjs';
 
 export default class Cell extends LinearMovableTile {
-    constructor(row, column, size, value) {
-        super(Vector.from(column, row).multiply(size), size);
+    constructor(logicalPosition, drawingSize, value) {
+        super(Vector.from(logicalPosition).multiply(drawingSize), drawingSize);
 
-        this.row = row;
-        this.column = column;
+        this.logicalPosition = Vector.from(logicalPosition);
         this.value = value;
     }
 
@@ -21,18 +20,16 @@ export default class Cell extends LinearMovableTile {
         this.value *= 2;
     }
 
-    changeRowAndColumn(row, column) {
-        const euclideanDistance = Math.hypot(row - this.row, column - this.column);
-        const durationInSeconds = euclideanDistance * Constants.CELL_MOVE_DURATION_IN_SECONDS;
-        const target = Vector.from(column, row).multiply(this.size);
+    changePosition(position) {
+        const durationInSeconds = this.logicalPosition.distance(position) * Constants.CELL_MOVE_DURATION_IN_SECONDS;
+        const target = Vector.from(position).multiply(this.drawingSize);
         this.setTarget(target, durationInSeconds);
-        this.row = row;
-        this.column = column;
+        this.logicalPosition = position;
     }
 
     draw(context) {
-        const { x: width, y: height } = this.size;
-        const { x, y } = this.position;
+        const { x: width, y: height } = this.drawingSize;
+        const { x, y } = this.drawingPosition;
         const { BG, FG } = Styles.CellsColors[this.value];
 
         const PAD = width * 0.05;

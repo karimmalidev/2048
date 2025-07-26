@@ -4,22 +4,22 @@ import Vector from '../../helpers/Vector.mjs';
 export default class LinearMovableTile extends MovableTile {
     constructor(position, size) {
         super(position, size);
-        this.target = Vector.from(position);
-        this.velocity = Vector.from(0, 0);
+        this.drawingTarget = Vector.from(position);
+        this.drawingVelocity = Vector.from(0, 0);
     }
 
     setTarget(target, durationInSeconds) {
-        this.target = Vector.from(target);
-        this.velocity = this.target.subtract(this.position).divide(durationInSeconds);
+        this.drawingTarget = Vector.from(target);
+        this.drawingVelocity = this.drawingTarget.subtract(this.drawingPosition).divide(durationInSeconds);
     }
 
     move(timeDeltaInSeconds) {
-        const delta = this.velocity.multiply(timeDeltaInSeconds);
-        const boundary = this.target;
-        this.position = this.position.clampAdd(delta, boundary);
+        const delta = this.drawingVelocity.multiply(timeDeltaInSeconds);
+        const boundary = this.drawingTarget;
+        this.drawingPosition = this.drawingPosition.clampAdd(delta, boundary);
     }
 
     hasReachedTarget() {
-        return this.position.equals(this.target);
+        return this.drawingPosition.equals(this.drawingTarget);
     }
 }

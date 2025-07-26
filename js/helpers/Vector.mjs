@@ -37,6 +37,11 @@ export default class Vector {
         return this.x === v.x && this.y === v.y;
     }
 
+    distance(other) {
+        const v = Vector.from(other);
+        return Math.hypot(this.x - v.x, this.y - v.y);
+    }
+
     absolute = () => this.applyComponentwise(Math.abs);
     add = (other) => this.applyComponentwise((a, b) => a + b, other);
     subtract = (other) => this.applyComponentwise((a, b) => a - b, other);

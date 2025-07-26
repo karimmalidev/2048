@@ -1,76 +1,67 @@
+import Vector from "./Vector.mjs";
+
 export default class Matrix {
-    constructor(numberOfRows, numberOfColumns) {
-        this.numberOfRows = numberOfRows;
-        this.numberOfColumns = numberOfColumns;
-        this._matrix = Array.from(
-            { length: numberOfRows },
-            () => Array(numberOfColumns).fill(undefined)
-        );
+    constructor(size) {
+        this.size = Vector.from(size);
+        this.array = this.#create2DArray();
     }
 
-    _assertValidRowAndColumn(row, column) {
-        if (
-            row < 0 || row >= this.numberOfRows ||
-            column < 0 || column >= this.numberOfColumns
-        ) {
-            throw new RangeError(`Invalid indices: row=${row}, column=${column}`);
-        }
+    get(position) {
+        this.#validatePosition(position);
+        return this.array[position.x][position.y];
     }
 
-    getCell(row, column) {
-        this._assertValidRowAndColumn(row, column);
-
-        return this._matrix[row][column];
+    set(position, value) {
+        this.#validatePosition(position)
+        this.array[position.x][position.y] = value;
     }
 
-    isDefinedCell(row, column) {
-        this._assertValidRowAndColumn(row, column);
-
-        return this._matrix[row][column] !== undefined;
+    delete(position) {
+        this.set(position, undefined);
     }
 
-    setCell(row, column, value) {
-        this._assertValidRowAndColumn(row, column);
-        this._matrix[row][column] = value;
+    has(position) {
+        return this.get(position) !== undefined;
     }
 
-    removeCell(row, column) {
-        this._assertValidRowAndColumn(row, column);
-
-        this.setCell(row, column, undefined);
+    move(source, destination) {
+        this.set(destination, this.get(source));
+        this.delete(source);
     }
 
-    moveCell(fromRow, fromColumn, toRow, toColumn) {
-        if (fromRow === toRow && fromColumn === toColumn) {
-            return;
-        }
-
-        this._assertValidRowAndColumn(fromRow, fromColumn);
-        this._assertValidRowAndColumn(toRow, toColumn);
-
-        const value = this.getCell(fromRow, fromColumn);
-        this.setCell(toRow, toColumn, value);
-        this.removeCell(fromRow, fromColumn);
+    getValues() {
+        return this.array.flat().filter((value) => value !== undefined);
     }
 
-    getDefinedCells() {
-        return this._matrix.flat().filter((cell) => cell !== undefined);
-    }
-
-    getUndefinedCellsRowColumns() {
-        const rowsColumns = [];
-        const rows = this.numberOfRows;
-        const columns = this.numberOfColumns;
-        const matrix = this._matrix;
-
-        for (let row = 0; row < rows; row++) {
-            for (let column = 0; column < columns; column++) {
-                if (!this.isDefinedCell(row, column)) {
-                    rowsColumns.push({ row, column });
+    getEmptyPositions() {
+        const positions = [];
+        for (let x = 0; x < this.size.x; x++) {
+            for (let y = 0; y < this.size.y; y++) {
+                const position = Vector.from(x, y);
+                if (!this.has(position)) {
+                    positions.push(position)
                 }
             }
         }
+        return positions;
+    }
 
-        return rowsColumns;
+    #create2DArray() {
+        return Array.from(
+            { length: this.size.x },
+            () => Array(this.size.y).fill(undefined)
+        );
+    }
+
+    #validatePosition(position) {
+        if (!(position instanceof Vector)) {
+            throw new TypeError(`Expected instance of Vector, got ${typeof position}`)
+        }
+        if (position.x < 0 || position.x >= this.size.x) {
+            throw new RangeError(`Invalid x component: ${position.x}`);
+        }
+        if (position.y < 0 || position.y >= this.size.y) {
+            throw new RangeError(`Invalid y component: ${position.y}`);
+        }
     }
 }

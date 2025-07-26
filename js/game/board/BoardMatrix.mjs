@@ -2,44 +2,45 @@ import Matrix from '../../helpers/Matrix.mjs';
 import Random from '../../helpers/Random.mjs';
 import Cell from './Cell.mjs';
 import Direction from '../../engine/control/Direction.mjs';
-
+import Vector from '../../helpers/Vector.mjs';
 
 function convertMajorMinorToRowColumn(isRowMajor, major, minor) {
     return isRowMajor ? [major, minor] : [minor, major];
 }
 
 
-export default class BoardMatrix extends Matrix {
-    constructor(cellsPerAxis, cellSize) {
-        super(cellsPerAxis, cellsPerAxis);
-        this.cellSize = cellSize;
+export default class BoardMatrix {
+    constructor(logicalSize, cellDrawingSize) {
+        this.logicalSize = Vector.from(logicalSize);
+        this.cellDrawingSize = Vector.from(cellDrawingSize);
+        this.matrix = new Matrix(logicalSize);
 
         this.addCellRandomly();
         this.addCellRandomly();
     }
 
-    addCell(row, column, value) {
-        const size = this.cellSize;
-        const cell = new Cell(row, column, size, value);
-        this.setCell(row, column, cell);
+    addCell(position, value) {
+        this.matrix.set(
+            position,
+            new Cell(position, this.cellDrawingSize, value)
+        );
     }
 
     addCellRandomly(value) {
         if (value === undefined) {
             value = Math.random <= 0.1 ? 4 : 2;
         }
-        const freeRowColumnPairs = this.getUndefinedCellsRowColumns();
-        if (freeRowColumnPairs.length == 0) {
+        const emptyPositions = this.matrix.getEmptyPositions();
+        if (emptyPositions.length === 0) {
             return;
         }
-        const { row, column } = Random.sampleOf(freeRowColumnPairs);
-        this.addCell(row, column, value);
+        this.addCell(Random.sampleOf(emptyPositions),  value);
     }
 
 
     _getLoopParamsToMoveToward(direction) {
-        const rows = this.numberOfRows;
-        const columns = this.numberOfColumns;
+        const rows = this.logicalSize.y;
+        const columns = this.logicalSize.x;
 
         const LoopParams = {
             [Direction.UP]: {
@@ -76,19 +77,19 @@ export default class BoardMatrix extends Matrix {
 
         for (let minor = minorBegin + minorStep; minor != minorEnd; minor += minorStep) {
             const [row, column] = convertMajorMinorToRowColumn(isRowMajor, major, minor);
-            if (!this.isDefinedCell(row, column)) {
+            if (!this.matrix.has(Vector.from(column, row))) {
                 continue;
             }
 
-            const cell = this.getCell(row, column);
+            const cell = this.matrix.get(Vector.from(column,row));
 
             let targetMinor = undefined;
             let doDouble = false;
 
             for (let tmpMinor = minor - minorStep; tmpMinor != tmpEnd; tmpMinor -= minorStep) {
                 const [tmpRow, tmpColumn] = convertMajorMinorToRowColumn(isRowMajor, major, tmpMinor);
-                if (this.isDefinedCell(tmpRow, tmpColumn)) {
-                    const tmpCell = this.getCell(tmpRow, tmpColumn);
+                if (this.matrix.has(Vector.from(tmpColumn, tmpRow))) {
+                    const tmpCell = this.matrix.get(Vector.from(tmpColumn, tmpRow));
                     if (tmpCell.equals(cell)) {
                         targetMinor = tmpMinor;
                         doDouble = true;
@@ -101,8 +102,8 @@ export default class BoardMatrix extends Matrix {
 
             if (targetMinor !== undefined) {
                 const [targetRow, targetColumn] = convertMajorMinorToRowColumn(isRowMajor, major, targetMinor);
-                cell.changeRowAndColumn(targetRow, targetColumn);
-                this.moveCell(row, column, targetRow, targetColumn);
+                cell.changePosition(Vector.from(targetColumn, targetRow));
+                this.matrix.move(Vector.from(column, row), Vector.from(targetColumn, targetRow));
                 if (doDouble) {
                     cell.setToDouble();
                 }

@@ -5,22 +5,21 @@ import BoardMatrix from './BoardMatrix.mjs';
 import Drawing from "../../helpers/Drawing.mjs";
 
 export default class Board extends Tile {
-    constructor(cellsPerAxis, width, height) {
-        const position = Vector.from(0, 0);
-        const size = Vector.from(width, height);
-        super(position, size);
+    constructor(logicalSize, drawingPosition, drawingSize) {
+        super(drawingPosition, drawingSize);
 
-        this.cellsPerAxis = cellsPerAxis;
+        this.logicalSize = Vector.from(logicalSize);
+        this.drawingSize = Vector.from(drawingSize);
+        this.cellDrawingSize = this.drawingSize.divide(logicalSize);
 
-        const cellWidth = this.size.x / this.cellsPerAxis;
-        const cellHeight = this.size.y / this.cellsPerAxis;
-        this.cellSize = Vector.from(cellWidth, cellHeight);
+        this.matrix = new BoardMatrix(logicalSize, this.cellDrawingSize);
 
-        this.matrix = new BoardMatrix(cellsPerAxis, this.cellSize);
+        this.#initDrawingParameters();
     }
 
+
     get cells() {
-        return this.matrix.getDefinedCells();
+        return this.matrix.matrix.getValues();
     }
 
     get tiles() {
@@ -32,16 +31,28 @@ export default class Board extends Tile {
     }
 
     draw(context) {
-        const padding = this.cellSize.smallestComponent * Styles.PADDING_SCALE;
-        const { x: width, y: height } = this.cellSize.subtract(padding * 2);
-        const radius = padding * 2;
-
         context.fillStyle = Styles.BoardColor;
-        for (let row = 0; row < this.cellsPerAxis; row++) {
-            for (let column = 0; column < this.cellsPerAxis; column++) {
-                const { x, y } = Vector.from(column, row).multiply(this.cellSize).add(padding);
-                Drawing.fillRoundedRect(context, x, y, width, height, radius);
+        for (let y = this._yStart; y < this._yEnd; y += this._yStep) {
+            for (let x = this._xStart; x < this._xEnd; x += this._xStep) {
+                Drawing.fillRoundedRect(context, x, y, this._width, this._height, this._radius);
             }
         }
+    }
+
+    #initDrawingParameters() {
+        this._padding = this.cellDrawingSize.smallestComponent * Styles.PADDING_SCALE;
+        this._radius = this._padding * 2;
+
+        this._yStart = this.drawingPosition.y + this._padding;
+        this._yEnd = this._yStart + this.drawingSize.y;
+        this._yStep = this.cellDrawingSize.y;
+
+        this._xStart = this.drawingPosition.x + this._padding;
+        this._xEnd = this._xStart + this.drawingSize.x;
+        this._xStep = this.cellDrawingSize.x;
+
+        const { x, y } = this.cellDrawingSize.subtract(this._padding * 2);
+        this._width = x;
+        this._height = y;
     }
 }

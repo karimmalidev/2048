@@ -2,17 +2,25 @@ import Renderer from './../engine/graphics/Renderer.mjs';
 import MoveInputListener from './../engine/control/MoveInputListener.mjs';
 import Board from './board/Board.mjs';
 import Constants from './Constants.mjs';
+import Vector from '../helpers/Vector.mjs';
 
 export default class Game {
     constructor(canvas) {
-        const { width, height } = canvas;
+        this.board = new Board(
+            Constants.BOARD_SIZE,
+            Vector.from(0, 0),
+            Vector.from(canvas.width, canvas.height)
+        );
 
-        this.board = new Board(Constants.CELLS_PER_AXIS, width, height);
+        this.renderer = new Renderer(
+            canvas.getContext('2d'),
+            this.board
+        );
 
-        const context = canvas.getContext('2d');
-        this.renderer = new Renderer(context, this.board);
-
-        this.moveInputListener = new MoveInputListener(canvas, this.board.moveInputCallback);
+        this.moveInputListener = new MoveInputListener(
+            canvas,
+            this.board.moveInputCallback
+        );
     }
 
     start() {

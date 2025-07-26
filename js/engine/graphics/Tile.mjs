@@ -1,9 +1,9 @@
 import Vector from '../../helpers/Vector.mjs';
 
 export default class Tile {
-    constructor(position, size) {
-        this.position = Vector.from(position);
-        this.size = Vector.from(size);
+    constructor(drawingPosition, drawingSize) {
+        this.drawingPosition = Vector.from(drawingPosition);
+        this.drawingSize = Vector.from(drawingSize);
     }
 
     draw(context) {
