@@ -10,8 +10,8 @@ const Styles = {
     BoardColor: "hsla(0, 0%, 50%, 0.2)",
     CellsColors: [],
     ScoreBar: {
-        SCORE_FG: 'hsla(0, 0%, 0%, 0.3)',
-        HIGH_FG: 'hsla(0, 0%, 0%, 0.2)',
+        SCORE_FG: 'hsla(0, 0%, 50%, 0.6)',
+        HIGH_FG: 'hsla(0, 0%, 50%, 0.4)',
     },
     PADDING_SCALE: 0.05,
 };
