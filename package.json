@@ -1,0 +1,23 @@
+{
+  "name": "2048",
+  "version": "1.0.0",
+  "description": "2048 game for web browsers",
+  "homepage": "https://github.com/karimmalidev/2048#readme",
+  "bugs": {
+    "url": "https://github.com/karimmalidev/2048/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karimmalidev/2048.git"
+  },
+  "license": "MIT",
+  "author": "Karim M. Ali",
+  "type": "module",
+  "main": "src/app/index.mjs",
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}
