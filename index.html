@@ -12,6 +12,7 @@
             height: 100%;
             margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
@@ -23,6 +24,27 @@
             display: block;
             image-rendering: auto;
             touch-action: none;
+            margin: 10px;
+            cursor: grab;
+        }
+
+        button {
+            display: inline-block;
+            width: calc(min(100vw, 50vh) * 0.8);
+            padding: 1vh;
+            font-size: 2vh;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 18px;
+            color: hsl(0, 0, 50%);
+            background: hsla(0, 0, 50%, 0.2);
+            position: relative;
+            opacity: 0.4;
+        }
+
+        button:hover {
+            opacity: 0.6;
         }
     </style>
 </head>
@@ -30,6 +52,7 @@
 <body>
     <script type='module' src="app/index.mjs"></script>
     <canvas id="gameCanvas" width="720" height="720"></canvas>
+    <button id="restartButton" onclick="location.reload()">Restart</button>
 </body>
 
 </html>

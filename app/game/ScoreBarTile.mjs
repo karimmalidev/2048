@@ -5,7 +5,7 @@ export default class ScoreBar extends Tile {
     constructor(drawingPosition, drawingSize) {
         super(drawingPosition, drawingSize);
         this.score = 0;
-        this.maxScore = 0;
+        this.high = localStorage.getItem('high') ?? 0;
     }
 
     resetScore() {
@@ -14,9 +14,10 @@ export default class ScoreBar extends Tile {
 
     addToScore(amount) {
         this.score += amount;
-        if (this.score > this.maxScore) {
-            this.maxScore = this.score;
+        if (this.score > this.high) {
+            this.high = this.score;
         }
+        localStorage.setItem('high', this.high);
     }
 
     draw(context = new CanvasRenderingContext2D) {
@@ -29,7 +30,7 @@ export default class ScoreBar extends Tile {
         context.textBaseline = 'middle';
 
         const leftText = `Score: ${this.score}`;
-        const rightText = `High: ${this.score}`;
+        const rightText = `High: ${this.high}`;
         const leftTextWidth = context.measureText(leftText).width;
         const rightTextWidth = context.measureText(rightText).width;
         const xSpacing = (width - leftTextWidth - rightTextWidth) / 3;
