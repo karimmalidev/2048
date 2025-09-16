@@ -13,7 +13,7 @@
   "license": "MIT",
   "author": "Karim M. Ali",
   "type": "module",
-  "main": "src/app/index.mjs",
+  "main": "app/index.mjs",
   "scripts": {
     "test": "vitest"
   },
