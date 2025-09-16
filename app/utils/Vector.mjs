@@ -68,6 +68,9 @@ function isNumeric(n) {
 }
 
 function clampAdd(base, delta, boundary) {
+    if (delta == 0) {
+        return base;
+    }
     const clamp = delta > 0 ? Math.min : Math.max;
     return clamp(base + delta, boundary);
 }
