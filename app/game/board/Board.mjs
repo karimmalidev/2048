@@ -6,10 +6,14 @@ import BoardTile from "./BoardTile.mjs";
 import CellTile from "./CellTile.mjs";
 import MoveTileAnimator from '../../core/graphics/tile_animator/MoveTileAnimator.mjs';
 import Constants from "../Constants.mjs";
+import ScoreBarTile from "../ScoreBarTile.mjs";
 
 export default class Board {
-    constructor(renderer, logicalSize, drawingPosition, drawingSize) {
+    constructor(renderer, scoreBarTile, logicalSize, drawingPosition, drawingSize) {
         if (!(renderer instanceof Renderer)) {
+            throw TypeError;
+        }
+        if (!(scoreBarTile instanceof ScoreBarTile)) {
             throw TypeError;
         }
         if (!(logicalSize instanceof Vector)) {
@@ -22,6 +26,7 @@ export default class Board {
             throw TypeError;
         }
         this.renderer = renderer;
+        this.scoreBar = scoreBarTile;
         this.logicalSize = logicalSize;
         this.drawingPosition = drawingPosition;
         this.drawingSize = drawingSize;
@@ -59,7 +64,9 @@ export default class Board {
 
     setToDouble(position) {
         this.tilesMatrix.get(position).drawingValue *= 2;
-        this.boardMatrix.set(position, this.boardMatrix.get(position) * 2);
+        const newValue = this.boardMatrix.get(position) * 2;
+        this.boardMatrix.set(position, newValue);
+        this.scoreBar.addToScore(newValue);
     }
 
     add(position, value) {
