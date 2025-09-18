@@ -33,10 +33,22 @@ export default class Board {
 
         this.#init();
 
+        this.reset();
+    }
+
+    reset() {
+        this.tilesMatrix
+            .getNonEmptyPositions()
+            .forEach(position => this.delete(position));
         this.addRandomly();
         this.addRandomly();
     }
 
+    delete(position) {
+        this.renderer.tiles.delete(this.tilesMatrix.get(position));
+        this.tilesMatrix.delete(position);
+        this.boardMatrix.delete(position);
+    }
 
     moveInputCallback = (direction) => {
         // Block input when animation is running

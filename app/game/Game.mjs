@@ -44,4 +44,9 @@ export default class Game {
     start() {
         this.renderer.start();
     }
+
+    restart() {
+        this.scoreBar.resetScore();
+        this.board.reset();
+    }
 }

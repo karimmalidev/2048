@@ -46,6 +46,19 @@ export default class Matrix {
         return positions;
     }
 
+    getNonEmptyPositions() {
+        const positions = [];
+        for (let x = 0; x < this.size.x; x++) {
+            for (let y = 0; y < this.size.y; y++) {
+                const position = Vector.from(x, y);
+                if (this.has(position)) {
+                    positions.push(position)
+                }
+            }
+        }
+        return positions;
+    }
+
     copy() {
         const result = new Matrix(this.size);
         for (let x = 0; x < this.size.x; x++) {
